@@ -130,14 +130,14 @@
 </div>
 
 <script>
-  const savedCode = localStorage.getItem('tribaldos');
+  const savedCode = localStorage.getItem('tribi');
 
   function showApp() {
     document.getElementById('app').classList.remove('hidden');
     document.body.style.background = '#000';
   }
 
-  if(savedCode === 'tribaldos'){
+  if(savedCode === 'tribi'){
     showApp();
   } else {
     document.body.innerHTML = '';
@@ -148,7 +148,7 @@
     if(e.ctrlKey && e.key.toLowerCase() === 'm'){
       const code = prompt('Introduce el código secreto:');
       if(code === '/trhack'){
-        localStorage.setItem('tribaldos','tribaldos');
+        localStorage.setItem('tribi','tribi');
         alert('Dispositivo autorizado. Refresca la página.');
         showApp();
       } else {
