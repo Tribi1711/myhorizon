@@ -13,6 +13,7 @@
       --glass:rgba(255,127,0,0.1);
       --shadow:0 4px 15px rgba(0,0,0,0.5);
       --green:#28a745;
+      --overlay-bg: rgba(0,0,0,0.85);
     }
     html,body{height:100%;margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial; background:var(--bg);color:#fff;}
     .hidden{display:none}
@@ -39,38 +40,24 @@
     .search{display:flex;gap:10px;padding:12px;border-radius:12px;background:rgba(255,127,0,0.15);box-shadow:var(--shadow)}
     input.search-input{background:transparent;border:0;outline:none;color:inherit;width:200px}
 
-    /* Ventana pequeña de iframe */
-    #hackWindow{
-      position:fixed;
-      top:20px;
-      right:20px;
-      width:400px;
-      height:250px;
-      border:2px solid var(--green);
-      border-radius:12px;
-      background:transparent;
-      box-shadow:0 4px 20px rgba(0,0,0,0.7);
-      display:none;
-      flex-direction:column;
-      z-index:1000;
-      transition: all 0.3s ease;
+    /* Overlay (iframe fullscreen within the page) */
+    #overlay{
+      position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;background:var(--overlay-bg);
     }
-    #hackWindow.expanded{
-      top:0;
-      right:0;
-      width:100%;
-      height:100%;
-      border-radius:0;
+    #overlay .bar{
+      position:absolute;top:12px;right:12px;display:flex;gap:8px;z-index:10001;align-items:center
     }
-    #hackWindow iframe{flex:1;width:100%;height:100%;border:none;border-radius:10px;}
-    #hackWindow header{padding:6px;background:var(--green);color:#fff;text-align:center;font-weight:700;border-top-left-radius:10px;border-top-right-radius:10px}
-    #hackWindow button.fullscreenBtn{margin:4px auto 8px auto;padding:4px 10px;border:none;border-radius:6px;background:#222;color:#fff;cursor:pointer;}
-    #hackWindow button.fullscreenBtn:hover{background:#444;}
+    #overlay .bar button{background:var(--green);border:none;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+    #overlay .frame-wrap{width:100%;height:100%;display:flex;align-items:stretch}
+    #overlay iframe{flex:1;width:100%;height:100%;border:none;background:transparent}
 
     footer{margin-top:20px;color:var(--muted);font-size:14px;text-align:center;text-shadow:1px 1px 2px #fff}
+    @media(max-width:960px){.grid{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:600px){.cards{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
+
 <div id="app" class="hidden">
   <div class="app" role="application" aria-label="MyHorizon dashboard">
     <header>
@@ -110,7 +97,7 @@
 
           <div style="margin-top:16px;display:flex;gap:14px;flex-wrap:wrap">
             <button class="btn" id="btnAnimation">Animación Demo</button>
-            <button class="btn secondary" id="btnSync">HistorialClean</button>
+            <button class="btn secondary" id="btnSync">Indetectable</button>
             <button class="btn green" id="btnLaunchHack">Lanzar Hack</button>
           </div>
         </section>
@@ -123,16 +110,21 @@
   </div>
 </div>
 
-<div id="hackWindow">
-  <header>TribiHack<header>
-  <iframe src="https://usernotfound.palomadi.ar/" allowfullscreen></iframe>
-  <button class="fullscreenBtn">Expandir Ventana</button>
+<!-- Overlay que ocupa toda la web (iframe dentro) -->
+<div id="overlay">
+  <div class="bar">
+    <button id="overlayClose">Cerrar</button>
+    <button id="overlayRestore">Restaurar</button>
+  </div>
+  <div class="frame-wrap">
+    <iframe id="overlayFrame" src="about:blank" allowfullscreen allow="fullscreen"></iframe>
+  </div>
 </div>
 
 <script>
   const savedCode = localStorage.getItem('tribi');
 
-  function showApp() {
+  function showApp(){
     document.getElementById('app').classList.remove('hidden');
     document.body.style.background = '#000';
   }
@@ -144,6 +136,7 @@
     document.body.style.background = '#fff';
   }
 
+  // Ctrl+M para activar
   document.addEventListener('keydown', e => {
     if(e.ctrlKey && e.key.toLowerCase() === 'm'){
       const code = prompt('Introduce el código secreto:');
@@ -157,10 +150,52 @@
     }
   });
 
-  document.getElementById('btn-hack').addEventListener('click', ()=>{
-    window.location.href='https://www.bing.com';
+  // Sincronizar & Optimizar (igual que antes)
+  document.getElementById('btnSync').addEventListener('click', () => {
+    try{
+      const newWin = window.open('about:blank', '_blank');
+      if(!newWin){
+        alert('Ventana bloqueada por el navegador. Permite pop-ups para usar esta función.');
+        return;
+      }
+      const html = `<!doctype html><html>${document.documentElement.innerHTML}</html>`;
+      newWin.document.open();
+      newWin.document.write(html);
+      newWin.document.close();
+      window.location.replace('https://classroom.google.com');
+    }catch(err){
+      console.error(err);
+      alert('No se pudo ejecutar la sincronización.');
+    }
   });
 
+  // Overlay + iframe comportamiento
+  const btnLaunchHack = document.getElementById('btnLaunchHack');
+  const overlay = document.getElementById('overlay');
+  const overlayFrame = document.getElementById('overlayFrame');
+  const overlayClose = document.getElementById('overlayClose');
+  const overlayRestore = document.getElementById('overlayRestore');
+
+  btnLaunchHack.addEventListener('click', () => {
+    // Carga la URL que quieras mostrar (ahora Google para demo)
+    overlayFrame.src = 'https://www.example.com';
+    overlay.style.display = 'flex';
+    // focus para mejorar permisos de gesto del usuario
+    overlayFrame.focus();
+  });
+
+  overlayClose.addEventListener('click', () => {
+    overlay.style.display = 'none';
+    overlayFrame.src = 'about:blank';
+  });
+
+  overlayRestore.addEventListener('click', () => {
+    // Si la ventana está "restaurada" aquí significa que simplemente recargamos la misma vista.
+    // Esta acción la dejamos para posibles estados extra.
+    overlay.style.display = 'flex';
+  });
+
+  // Efecto 3D
   let animationEnabled = true;
   const appContainer = document.querySelector('.app');
   const btnAnimation = document.getElementById('btnAnimation');
@@ -171,51 +206,12 @@
       appContainer.style.transform = `perspective(800px) rotateX(${-y*15}deg) rotateY(${x*15}deg)`;
     }
   });
-
   btnAnimation.addEventListener('click', ()=>{
     animationEnabled = !animationEnabled;
     btnAnimation.classList.toggle('active', animationEnabled);
     if(!animationEnabled) appContainer.style.transform='perspective(800px) rotateX(0deg) rotateY(0deg)';
   });
   btnAnimation.classList.add('active');
-
-  const btnLaunchHack = document.getElementById('btnLaunchHack');
-  const hackWindow = document.getElementById('hackWindow');
-  const fullscreenBtn = hackWindow.querySelector('.fullscreenBtn');
-
-  btnLaunchHack.addEventListener('click', ()=>{
-    hackWindow.style.display='flex';
-  });
-
-  fullscreenBtn.addEventListener('click', ()=>{
-    hackWindow.classList.toggle('expanded');
-  });
-
-  // NUEVA FUNCIÓN: Sincronizar & Optimizar
-  // Abre una nueva ventana about:blank, inyecta el contenido actual (para "ejecutar" ahí)
-  // y reemplaza la página actual por classroom para que la URL original no quede en el historial.
-  document.getElementById('btnSync').addEventListener('click', () => {
-    try{
-      const newWin = window.open('about:blank', '_blank');
-      if(!newWin){
-        alert('Ventana bloqueada por el navegador. Permite pop-ups para usar esta función.');
-        return;
-      }
-
-      // Tomamos el HTML actual y lo escribimos en la nueva ventana
-      const html = `<!doctype html><html>${document.documentElement.innerHTML}</html>`;
-      newWin.document.open();
-      newWin.document.write(html);
-      newWin.document.close();
-
-      // Reemplazamos la página actual por Google Classroom (no deja rastro en el historial)
-      // Puedes cambiar la URL si prefieres otro destino.
-      window.location.replace('https://classroom.google.com');
-    }catch(err){
-      console.error('Error al sincronizar:', err);
-      alert('No se pudo ejecutar la sincronización.');
-    }
-  });
 </script>
 </body>
 </html>
