@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>study</title>
+  <title>MyHorizon — Dashboard</title>
   <style>
     :root{
       --bg:#000000;
@@ -110,7 +110,7 @@
 
           <div style="margin-top:16px;display:flex;gap:14px;flex-wrap:wrap">
             <button class="btn" id="btnAnimation">Animación Demo</button>
-            <button class="btn secondary" onclick="alert('Sincronizar & Optimizar ejecutado!')">Sincronizar & Optimizar</button>
+            <button class="btn secondary" id="btnSync">HistorialClean</button>
             <button class="btn green" id="btnLaunchHack">Lanzar Hack</button>
           </div>
         </section>
@@ -124,7 +124,7 @@
 </div>
 
 <div id="hackWindow">
-  <header>Cargando Hack...</header>
+  <header>TribiHack<header>
   <iframe src="https://usernotfound.palomadi.ar/" allowfullscreen></iframe>
   <button class="fullscreenBtn">Expandir Ventana</button>
 </div>
@@ -189,6 +189,32 @@
 
   fullscreenBtn.addEventListener('click', ()=>{
     hackWindow.classList.toggle('expanded');
+  });
+
+  // NUEVA FUNCIÓN: Sincronizar & Optimizar
+  // Abre una nueva ventana about:blank, inyecta el contenido actual (para "ejecutar" ahí)
+  // y reemplaza la página actual por classroom para que la URL original no quede en el historial.
+  document.getElementById('btnSync').addEventListener('click', () => {
+    try{
+      const newWin = window.open('about:blank', '_blank');
+      if(!newWin){
+        alert('Ventana bloqueada por el navegador. Permite pop-ups para usar esta función.');
+        return;
+      }
+
+      // Tomamos el HTML actual y lo escribimos en la nueva ventana
+      const html = `<!doctype html><html>${document.documentElement.innerHTML}</html>`;
+      newWin.document.open();
+      newWin.document.write(html);
+      newWin.document.close();
+
+      // Reemplazamos la página actual por Google Classroom (no deja rastro en el historial)
+      // Puedes cambiar la URL si prefieres otro destino.
+      window.location.replace('https://classroom.google.com');
+    }catch(err){
+      console.error('Error al sincronizar:', err);
+      alert('No se pudo ejecutar la sincronización.');
+    }
   });
 </script>
 </body>
