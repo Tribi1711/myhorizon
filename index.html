@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>MyHorizon — Tribi</title>
+  <title>MyHorizon</title>
   <style>
     :root{
       --bg:#000000;
@@ -42,13 +42,16 @@
 
     /* Overlay (iframe fullscreen within the page) */
     #overlay{
-      position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;background:var(--overlay-bg);
+      position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:9999;background:var(--overlay-bg);flex-direction:column;
     }
     #overlay .bar{
       position:absolute;top:12px;right:12px;display:flex;gap:8px;z-index:10001;align-items:center
     }
     #overlay .bar button{background:var(--green);border:none;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
-    #overlay .frame-wrap{width:100%;height:100%;display:flex;align-items:stretch}
+    #overlay .banner{
+      width:100%;text-align:center;background:var(--accent);color:#fff;padding:6px 0;font-weight:bold;z-index:10000;
+    }
+    #overlay .frame-wrap{flex:1;width:100%;display:flex;align-items:stretch}
     #overlay iframe{flex:1;width:100%;height:100%;border:none;background:transparent}
 
     footer{margin-top:20px;color:var(--muted);font-size:14px;text-align:center;text-shadow:1px 1px 2px #fff}
@@ -59,13 +62,13 @@
 <body>
 
 <div id="app" class="hidden">
-  <div class="app" role="application" aria-label="MyHorizon dashboard">
+  <div class="app" role="application" aria-label="MyHorizon">
     <header>
       <div class="brand">
-        <div class="logo">MH</div>
+        <div class="logo">HTR</div>
         <div>
           <h1>MyHorizon</h1>
-          <p class="lead">Panel de funciones avanzadas — Hecho por Tribi</p>
+          <p class="lead">Hack — HTR</p>
         </div>
       </div>
       <div class="row">
@@ -105,13 +108,14 @@
     </div>
 
     <footer>
-      <small>Diseñado por Tribi — MyHorizon © 2025</small>
+      <small>Hecho por Hugo — MyHorizon © 2025</small>
     </footer>
   </div>
 </div>
 
 <!-- Overlay que ocupa toda la web (iframe dentro) -->
 <div id="overlay">
+  <div class="banner">HTR</div>
   <div class="bar">
     <button id="overlayClose">Cerrar</button>
     <button id="overlayRestore">Restaurar</button>
@@ -177,10 +181,8 @@
   const overlayRestore = document.getElementById('overlayRestore');
 
   btnLaunchHack.addEventListener('click', () => {
-    // Carga la URL que quieras mostrar (ahora Google para demo)
     overlayFrame.src = 'https://usernotfound.palomadi.ar/';
     overlay.style.display = 'flex';
-    // focus para mejorar permisos de gesto del usuario
     overlayFrame.focus();
   });
 
@@ -190,8 +192,6 @@
   });
 
   overlayRestore.addEventListener('click', () => {
-    // Si la ventana está "restaurada" aquí significa que simplemente recargamos la misma vista.
-    // Esta acción la dejamos para posibles estados extra.
     overlay.style.display = 'flex';
   });
 
